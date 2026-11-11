@@ -1,3 +1,6 @@
+[![tests](https://github.com/juancalero/ddev-docktopus/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/juancalero/ddev-docktopus/actions/workflows/tests.yml)
+[![release](https://img.shields.io/github/v/release/juancalero/ddev-docktopus)](https://github.com/juancalero/ddev-docktopus/releases/latest)
+
 # DDEV Docktopus
 
 One command installs the complete **docktopus development stack** inside any existing DDEV project: Apache Solr 9, Varnish 7, OpenLDAP + phpLDAPadmin, PostgreSQL 17, a Node 22 + Express API, a React 19 (Vite 7) frontend, Adminer, Portainer, plus the OpenCode AI stack — all the components of the [docktopus](https://github.com/juancalero/docktopus) project template, packaged as independent DDEV add-ons so you can use them on any project (not just the docktopus template).
@@ -40,7 +43,7 @@ First start may take a while: the web image is rebuilt with the PHP `ldap` exten
 DDEV project (your existing Drupal site)
  ├─ solr 9 ────────── search (configsets es/en from search_api_solr)
  ├─ varnish 7 ─────── HTTP cache in front of the site (via ddev-router)
- ├─ openldap ──────── corporate directory (phpMyLDAPadmin on :6443)
+ ├─ openldap ──────── corporate directory (phpLDAPadmin on :6443)
  ├─ postgres 17 ───── database for the Node API (not DDEV's main db)
  ├─ node ──────────── Node 22 + Express API (api/ scaffold, :13000)
  ├─ react ─────────── Vite dev server (frontend_react/ scaffold, :15173)
@@ -107,6 +110,13 @@ AGENTS_REPOS=https://github.com/trebormc/drupal-ai-agents.git,https://github.com
 
 Then run `ddev agents-update && ddev restart`. A `#branch` suffix pins a ref. Your pack only needs to follow the same layout (`.claude/agents/*.md`, `.claude/rules/*.md`, `.claude/skills/*/SKILL.md`, `.env.agents`) and can use the same `${MODEL_*}` tokens, so both packs are interchangeable.
 
+## Child updates
+
+After installing (or whenever you run `ddev add-on get juancalero/ddev-docktopus` again), every child add-on is refreshed to its latest release, so one command keeps the whole family up to date.
+
+- A child that cannot be fetched (unpublished, renamed, offline) is reported as a **warning** and never aborts the installation.
+- Set `DDEV_DOCKTOPUS_SKIP_DEPS=1` in the session/CI environment to skip the refresh — for example when the children were installed from local checkouts and you want exact versions with no GitHub traffic.
+
 ## Uninstallation
 
 ```
@@ -120,7 +130,6 @@ The meta add-on only groups the others: remove them individually with `ddev add-
 
 - **Ports** follow DDEV conventions: HTTP services are exposed through the ddev-router (Solr `:8983`/`:8943`, phpLDAPadmin `:6443`/`:6444`, Node API `:13000`/`:13001`, React `:15173`/`:15174`) and can be shared by several projects at once. Only non-HTTP services bind a host port (LDAP `10389`, PostgreSQL `15432`), configurable in each add-on's `.env` file.
 - **Scaffolding** (`api/`, `frontend_react/`, `postgres-init/`) is only created when the project does not already have it, and every generated file carries a `#ddev-generated` marker: edit them freely and the add-ons will respect your changes.
-- **Child updates**: after installing (or whenever you run `ddev add-on get juancalero/ddev-docktopus` again), every child add-on is refreshed to its latest release. A child that cannot be fetched (unpublished, renamed, offline) is reported as a warning and never aborts the installation. Set `DDEV_DOCKTOPUS_SKIP_DEPS=1` in the CI/session environment to skip the refresh.
 - Not intended for production deployments.
 
 ## License

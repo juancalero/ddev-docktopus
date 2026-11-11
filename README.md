@@ -118,8 +118,9 @@ The meta add-on only groups the others: remove them individually with `ddev add-
 
 ## Notes
 
-- **Ports** follow DDEV conventions: HTTP services are exposed through the ddev-router (Solr `:8983`, phpLDAPadmin `:6443`, Node API `:13000`, React `:15173`) and can be shared by several projects at once. Only non-HTTP services bind a host port (LDAP `10389`, PostgreSQL `15432`), configurable in each add-on's `.env` file.
+- **Ports** follow DDEV conventions: HTTP services are exposed through the ddev-router (Solr `:8983`/`:8943`, phpLDAPadmin `:6443`/`:6444`, Node API `:13000`/`:13001`, React `:15173`/`:15174`) and can be shared by several projects at once. Only non-HTTP services bind a host port (LDAP `10389`, PostgreSQL `15432`), configurable in each add-on's `.env` file.
 - **Scaffolding** (`api/`, `frontend_react/`, `postgres-init/`) is only created when the project does not already have it, and every generated file carries a `#ddev-generated` marker: edit them freely and the add-ons will respect your changes.
+- **Child updates**: after installing (or whenever you run `ddev add-on get juancalero/ddev-docktopus` again), every child add-on is refreshed to its latest release. A child that cannot be fetched (unpublished, renamed, offline) is reported as a warning and never aborts the installation. Set `DDEV_DOCKTOPUS_SKIP_DEPS=1` in the CI/session environment to skip the refresh.
 - Not intended for production deployments.
 
 ## License

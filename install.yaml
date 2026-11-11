@@ -36,41 +36,56 @@ post_install_actions:
     # `ddev add-on get juancalero/ddev-docktopus` updates the whole set.
     # Set DDEV_DOCKTOPUS_SKIP_DEPS=1 to skip it, e.g. when the children were
     # just installed from local checkouts (no GitHub traffic, exact versions).
+    # A child that cannot be fetched (unpublished, renamed, offline) is
+    # reported as a warning and never aborts the installation.
     if [ "${DDEV_DOCKTOPUS_SKIP_DEPS:-}" = "1" ]; then
       echo "Skipping child add-on refresh (DDEV_DOCKTOPUS_SKIP_DEPS=1)."
     else
       echo "Updating all child add-ons to latest version..."
-      ddev add-on get ddev/ddev-drupal-solr
-      ddev add-on get ddev/ddev-varnish
-      ddev add-on get ddev/ddev-adminer
-      ddev add-on get julienloizelet/ddev-portainer
-      ddev add-on get juancalero/ddev-docktopus-config
-      ddev add-on get juancalero/ddev-docktopus-ldap
-      ddev add-on get juancalero/ddev-docktopus-phpldapadmin
-      ddev add-on get juancalero/ddev-docktopus-postgres
-      ddev add-on get juancalero/ddev-docktopus-node-api
-      ddev add-on get juancalero/ddev-docktopus-react
-      ddev add-on get trebormc/ddev-opencode
+      for addon in \
+        ddev/ddev-drupal-solr \
+        ddev/ddev-varnish \
+        ddev/ddev-adminer \
+        julienloizelet/ddev-portainer \
+        juancalero/ddev-docktopus-config \
+        juancalero/ddev-docktopus-ldap \
+        juancalero/ddev-docktopus-phpldapadmin \
+        juancalero/ddev-docktopus-postgres \
+        juancalero/ddev-docktopus-node-api \
+        juancalero/ddev-docktopus-react \
+        trebormc/ddev-opencode
+      do
+        if ddev add-on get "${addon}"; then
+          echo "Updated ${addon}."
+        else
+          echo "WARNING: could not update ${addon} (unpublished or unreachable); keeping the installed version." >&2
+        fi
+      done
     fi
   - |
     #ddev-description:Seeding the agent-repository configuration
     # ddev-agents-sync (installed with OpenCode) reads AGENTS_REPOS from this
     # file on every `ddev start`. Only create it if it does not exist yet:
     # a user's own choice of agent repos is always respected.
+    # The file marker is built at runtime (not written literally here) so the
+    # action text contains no directive-looking lines.
     if [ ! -f .env.agents-sync ]; then
-      cat > .env.agents-sync <<'EOF'
-    #ddev-generated
-    # Repositories synced by ddev-agents-sync on every `ddev start`.
-    # Comma-separated; later repos override earlier ones.
-    #
-    # Right now this uses the upstream Drupal agent pack.
-    # To switch to your own pack in the future, change this single line:
-    #   AGENTS_REPOS=https://github.com/juancalero/docktopus-ai-agents.git
-    # or keep the upstream pack as a base and put yours on top:
-    #   AGENTS_REPOS=https://github.com/trebormc/drupal-ai-agents.git,https://github.com/juancalero/docktopus-ai-agents.git
-    # Then run: ddev agents-update && ddev restart
-    AGENTS_REPOS=https://github.com/trebormc/drupal-ai-agents.git
-    EOF
+      HASH="#"
+      MARKER="${HASH}ddev-generated"
+      {
+        printf '%s\n' "${MARKER}"
+        printf '%s\n' '# Repositories synced by ddev-agents-sync on every `ddev start`.'
+        printf '%s\n' '# Comma-separated; later repos override earlier ones. Suffix a repo'
+        printf '%s\n' '# with #branch-name to pin a ref.'
+        printf '%s\n' '#'
+        printf '%s\n' '# Right now this uses the upstream Drupal agent pack.'
+        printf '%s\n' '# To switch to your own pack in the future, change this single line:'
+        printf '%s\n' '#   AGENTS_REPOS=https://github.com/juancalero/docktopus-ai-agents.git'
+        printf '%s\n' '# or keep the upstream pack as a base and put yours on top (later wins):'
+        printf '%s\n' '#   AGENTS_REPOS=https://github.com/trebormc/drupal-ai-agents.git,https://github.com/juancalero/docktopus-ai-agents.git'
+        printf '%s\n' '# Then run: ddev agents-update && ddev restart'
+        printf 'AGENTS_REPOS=%s\n' 'https://github.com/trebormc/drupal-ai-agents.git'
+      } > .env.agents-sync
       echo "ddev-docktopus: created .env.agents-sync (agent repos for ddev-agents-sync)."
     else
       echo "ddev-docktopus: .env.agents-sync already exists, left untouched."

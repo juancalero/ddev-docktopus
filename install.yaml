@@ -1,0 +1,99 @@
+name: ddev-docktopus
+
+ddev_version_constraint: '>= v1.24.10'
+
+# Children are listed in dependency order: the official/community add-ons
+# first, then the docktopus configuration layer on top of them, then the
+# docktopus services, and finally the AI stack (OpenCode, which also pulls
+# ddev-ai-ssh, beads, playwright-mcp and agents-sync).
+dependencies:
+  - ddev/ddev-drupal-solr
+  - ddev/ddev-varnish
+  - ddev/ddev-adminer
+  - julienloizelet/ddev-portainer
+  - juancalero/ddev-docktopus-config
+  - juancalero/ddev-docktopus-ldap
+  - juancalero/ddev-docktopus-phpldapadmin
+  - juancalero/ddev-docktopus-postgres
+  - juancalero/ddev-docktopus-node-api
+  - juancalero/ddev-docktopus-react
+  - trebormc/ddev-opencode
+
+pre_install_actions:
+  - |
+    #ddev-description:Installing the docktopus workspace
+    echo "Installing ddev-docktopus — the docktopus development stack (services + config + AI) for DDEV."
+
+project_files: []
+
+global_files: []
+
+post_install_actions:
+  - |
+    #ddev-description:Updating child add-ons
+    # DDEV's own `dependencies:` handling only installs MISSING add-ons; this
+    # step refreshes every child to its latest release so that one
+    # `ddev add-on get juancalero/ddev-docktopus` updates the whole set.
+    # Set DDEV_DOCKTOPUS_SKIP_DEPS=1 to skip it, e.g. when the children were
+    # just installed from local checkouts (no GitHub traffic, exact versions).
+    if [ "${DDEV_DOCKTOPUS_SKIP_DEPS:-}" = "1" ]; then
+      echo "Skipping child add-on refresh (DDEV_DOCKTOPUS_SKIP_DEPS=1)."
+    else
+      echo "Updating all child add-ons to latest version..."
+      ddev add-on get ddev/ddev-drupal-solr
+      ddev add-on get ddev/ddev-varnish
+      ddev add-on get ddev/ddev-adminer
+      ddev add-on get julienloizelet/ddev-portainer
+      ddev add-on get juancalero/ddev-docktopus-config
+      ddev add-on get juancalero/ddev-docktopus-ldap
+      ddev add-on get juancalero/ddev-docktopus-phpldapadmin
+      ddev add-on get juancalero/ddev-docktopus-postgres
+      ddev add-on get juancalero/ddev-docktopus-node-api
+      ddev add-on get juancalero/ddev-docktopus-react
+      ddev add-on get trebormc/ddev-opencode
+    fi
+  - |
+    #ddev-description:Seeding the agent-repository configuration
+    # ddev-agents-sync (installed with OpenCode) reads AGENTS_REPOS from this
+    # file on every `ddev start`. Only create it if it does not exist yet:
+    # a user's own choice of agent repos is always respected.
+    if [ ! -f .env.agents-sync ]; then
+      cat > .env.agents-sync <<'EOF'
+    #ddev-generated
+    # Repositories synced by ddev-agents-sync on every `ddev start`.
+    # Comma-separated; later repos override earlier ones.
+    #
+    # Right now this uses the upstream Drupal agent pack.
+    # To switch to your own pack in the future, change this single line:
+    #   AGENTS_REPOS=https://github.com/juancalero/docktopus-ai-agents.git
+    # or keep the upstream pack as a base and put yours on top:
+    #   AGENTS_REPOS=https://github.com/trebormc/drupal-ai-agents.git,https://github.com/juancalero/docktopus-ai-agents.git
+    # Then run: ddev agents-update && ddev restart
+    AGENTS_REPOS=https://github.com/trebormc/drupal-ai-agents.git
+    EOF
+      echo "ddev-docktopus: created .env.agents-sync (agent repos for ddev-agents-sync)."
+    else
+      echo "ddev-docktopus: .env.agents-sync already exists, left untouched."
+    fi
+  - |
+    #ddev-description:Installation complete
+    echo ""
+    echo "=== ddev-docktopus installed/updated ==="
+    echo ""
+    echo "Services: Solr 9 (with configsets), Varnish 7, Adminer, Portainer,"
+    echo "  OpenLDAP + phpLDAPadmin, PostgreSQL 17, Node API, React (Vite),"
+    echo "  phpMyAdmin and Mailpit (built into DDEV: 'ddev phpmyadmin' / 'ddev mailpit')"
+    echo "AI: OpenCode (with ai-ssh, beads, playwright-mcp and agents-sync)"
+    echo ""
+    echo "Next steps:"
+    echo "  1. Run: ddev restart"
+    echo "  2. Run: ddev describe    to see every service URL"
+    echo "  3. Run: ddev opencode    (guides you through authentication on first launch)"
+    echo ""
+
+removal_actions:
+  - |
+    #ddev-description:Cleaning up the docktopus workspace
+    echo "ddev-docktopus meta add-on removed."
+    echo "Note: child add-ons are still installed."
+    echo "Remove them individually with: ddev add-on remove <name>"

@@ -17,6 +17,7 @@ dependencies:
   - juancalero/ddev-docktopus-postgres
   - juancalero/ddev-docktopus-node-api
   - juancalero/ddev-docktopus-react
+  - juancalero/ddev-docktopus-drupal
   - trebormc/ddev-opencode
 
 pre_install_actions:
@@ -53,6 +54,7 @@ post_install_actions:
         juancalero/ddev-docktopus-postgres \
         juancalero/ddev-docktopus-node-api \
         juancalero/ddev-docktopus-react \
+        juancalero/ddev-docktopus-drupal \
         trebormc/ddev-opencode
       do
         if ddev add-on get "${addon}"; then
@@ -98,6 +100,9 @@ post_install_actions:
     echo "Services: Solr 9 (with configsets), Varnish 7, Adminer, Portainer,"
     echo "  OpenLDAP + phpLDAPadmin, PostgreSQL 17, Node API, React (Vite),"
     echo "  phpMyAdmin and Mailpit (built into DDEV: 'ddev phpmyadmin' / 'ddev mailpit')"
+    echo "Drupal: on the next 'ddev restart', an empty project is bootstrapped"
+    echo "  automatically into a Drupal 11 site with the stack modules connected"
+    echo "  (an existing project is never touched; see ddev-docktopus-drupal)"
     echo "AI: OpenCode (with ai-ssh, beads, playwright-mcp and agents-sync)"
     echo ""
     echo "Next steps:"

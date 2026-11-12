@@ -5,9 +5,9 @@
 
 One command installs the complete **docktopus development stack** inside any existing DDEV project: Apache Solr 9, Varnish 7, OpenLDAP + phpLDAPadmin, PostgreSQL 17, a Node 22 + Express API, a React 19 (Vite 7) frontend, Adminer, Portainer, plus the OpenCode AI stack — all the components of the [docktopus](https://github.com/juancalero/docktopus) project template, packaged as independent DDEV add-ons so you can use them on any project (not just the docktopus template).
 
-> Inspired by [ddev-ai-workspace](https://github.com/trebormc/ddev-ai-workspace): a meta add-on that orchestrates independent child add-ons, each installable and removable on its own.
+It works on **existing Drupal projects** (nothing is touched) and, with [`ddev-docktopus-drupal`](https://github.com/juancalero/ddev-docktopus-drupal), it can also **bootstrap a Drupal 11 site from scratch** automatically.
 
-> **Target:** existing Drupal projects. The add-on provides services, configuration and scaffolding — it does not ship a Drupal site (no composer.json, no database dump, no exported config).
+> Inspired by [ddev-ai-workspace](https://github.com/trebormc/ddev-ai-workspace): a meta add-on that orchestrates independent child add-ons, each installable and removable on its own.
 
 ## At a glance
 
@@ -26,6 +26,8 @@ One command installs the complete **docktopus development stack** inside any exi
 
 ## Quick start
 
+### Existing Drupal project
+
 ```
 cd /path/to/your-drupal-project
 ddev add-on get juancalero/ddev-docktopus
@@ -35,7 +37,17 @@ ddev describe     # every service URL
 ddev opencode     # AI assistant in its own container
 ```
 
-First start may take a while: the web image is rebuilt with the PHP `ldap` extension and the Node/React containers run their first `npm install`.
+### From scratch
+
+```
+mkdir my-site && cd my-site
+ddev config --project-type=drupal11 --docroot=web
+ddev start
+ddev add-on get juancalero/ddev-docktopus
+ddev restart      # bootstraps a Drupal 11 site automatically (a few minutes)
+```
+
+The result is a working Drupal 11 site (`admin` / `admin`) with `search_api_solr` and `ldap` installed, enabled and connected — see [ddev-docktopus-drupal](https://github.com/juancalero/ddev-docktopus-drupal) for the details. An existing project is never modified.
 
 ## Architecture
 
@@ -51,6 +63,9 @@ DDEV project (your existing Drupal site)
  ├─ phpmyadmin / mailpit ── included in DDEV core
  └─ opencode ──────── AI agent container, SSH access to web, beads,
                        playwright-mcp browser, agents-sync
+
+ddev-docktopus-drupal: on an empty project, bootstraps a Drupal 11 site
+  (composer + drush + search_api_solr + ldap, connected to the stack)
 ```
 
 ## Repositories
@@ -77,6 +92,7 @@ This workspace is a family of independent git repositories. Install them all wit
 | [ddev-docktopus-postgres](https://github.com/juancalero/ddev-docktopus-postgres) | PostgreSQL 17 for the Node API, with `postgres-init/` seed. |
 | [ddev-docktopus-node-api](https://github.com/juancalero/ddev-docktopus-node-api) | Node 22 + Express API service, `ddev api` command, `api/` scaffold if missing. |
 | [ddev-docktopus-react](https://github.com/juancalero/ddev-docktopus-react) | Vite + React 19 dev server, `ddev frontend` command, `frontend_react/` scaffold if missing. |
+| [ddev-docktopus-drupal](https://github.com/juancalero/ddev-docktopus-drupal) | Automatic Drupal 11 bootstrap for empty projects (site install + stack modules connected); existing projects untouched. |
 
 ### Individual installation
 
@@ -87,6 +103,7 @@ ddev add-on get juancalero/ddev-docktopus-phpldapadmin    # phpLDAPadmin (needs 
 ddev add-on get juancalero/ddev-docktopus-postgres        # PostgreSQL 17
 ddev add-on get juancalero/ddev-docktopus-node-api        # Node API
 ddev add-on get juancalero/ddev-docktopus-react           # React frontend
+ddev add-on get juancalero/ddev-docktopus-drupal          # Drupal 11 auto-bootstrap
 ddev add-on get trebormc/ddev-opencode                    # AI stack
 ```
 

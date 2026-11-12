@@ -26,6 +26,24 @@ It works on **existing Drupal projects** (nothing is touched) and, with [`ddev-d
 
 ## Quick start
 
+### Convert a project that is not configured with DDEV yet
+
+`ddev add-on get` must be run inside a configured DDEV project. On Windows, the optional PowerShell wizard can inspect a project first, suggest the DDEV type/docroot, and ask before making changes:
+
+```powershell
+$wizardDir = Join-Path $env:TEMP 'ddev-docktopus'
+git clone --depth 1 https://github.com/juancalero/ddev-docktopus.git $wizardDir
+& (Join-Path $wizardDir 'wizard/Convert-Docktopus.ps1') -Path (Get-Location).Path
+```
+
+Use `-AnalyzeOnly` to print the detection result as JSON without changing the project:
+
+```powershell
+& (Join-Path $wizardDir 'wizard/Convert-Docktopus.ps1') -Path . -AnalyzeOnly
+```
+
+The wizard detects Composer-managed Drupal projects, legacy Drupal source trees, Node/Vite projects and common `docker-compose.yml` files. It does **not** migrate databases or edit/stop/remove existing Compose services, containers, volumes, or project files. For Compose-managed Drupal (without a root `composer.json`), it recommends a `generic` DDEV project, leaves Drupal's empty-project bootstrap opted out, and lets you omit Docktopus Node/React add-ons to avoid duplicate services/scaffolds. Review detected host ports and resolve conflicts yourself before starting services. It currently targets Windows PowerShell 5.1+; run it from PowerShell, not WSL bash.
+
 ### Existing Drupal project
 
 ```

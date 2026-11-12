@@ -27,6 +27,21 @@ permissions:
   contents: read
 
 jobs:
+  wizard-tests:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse wizard script
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile("$PWD/wizard/Convert-Docktopus.ps1", [ref]$tokens, [ref]$errors) | Out-Null
+          if ($errors.Count) { $errors | ForEach-Object { Write-Error $_ }; exit 1 }
+      - name: Test wizard detection (read-only)
+        shell: pwsh
+        run: ./tests/test-wizard.ps1
+
   tests:
     strategy:
       matrix:

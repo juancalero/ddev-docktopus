@@ -33,7 +33,7 @@ It works on **existing Drupal projects** (nothing is touched) and, with [`ddev-d
 #### Linux (Bash + Python 3)
 
 ```bash
-git clone --depth 1 --branch v1.3.0 https://github.com/juancalero/ddev-docktopus.git "${TMPDIR:-/tmp}/ddev-docktopus"
+git clone --depth 1 --branch v1.3.1 https://github.com/juancalero/ddev-docktopus.git "${TMPDIR:-/tmp}/ddev-docktopus"
 bash "${TMPDIR:-/tmp}/ddev-docktopus/wizard/convert-docktopus.sh" --path "$PWD"
 ```
 
@@ -41,7 +41,7 @@ bash "${TMPDIR:-/tmp}/ddev-docktopus/wizard/convert-docktopus.sh" --path "$PWD"
 
 ```powershell
 $wizardDir = Join-Path $env:TEMP 'ddev-docktopus'
-git clone --depth 1 --branch v1.3.0 https://github.com/juancalero/ddev-docktopus.git $wizardDir
+git clone --depth 1 --branch v1.3.1 https://github.com/juancalero/ddev-docktopus.git $wizardDir
 & (Join-Path $wizardDir 'wizard/Convert-Docktopus.ps1') -Path (Get-Location).Path
 ```
 

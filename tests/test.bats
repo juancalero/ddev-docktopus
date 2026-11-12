@@ -41,7 +41,10 @@ health_checks() {
   run ddev exec -s solr curl -sf "http://localhost:8983/solr/dev/admin/ping"
   assert_output --partial '"status":"OK"'
 
-  run ddev exec -s openldap ldapsearch -x -H ldap://localhost -b "dc=miempresa,dc=local" -D "cn=admin,dc=miempresa,dc=local" -w admin "(objectClass=*)" dn
+  # ldapsearch uses the default filter (objectClass=*) when none is given;
+  # passing it explicitly breaks because ddev exec re-runs the command via
+  # `sh -c` and the bare parentheses end up unquoted.
+  run ddev exec -s openldap ldapsearch -x -H ldap://localhost -b "dc=miempresa,dc=local" -D "cn=admin,dc=miempresa,dc=local" -w admin dn
   assert_success
 
   run ddev exec -s postgres pg_isready

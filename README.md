@@ -28,7 +28,16 @@ It works on **existing Drupal projects** (nothing is touched) and, with [`ddev-d
 
 ### Convert a project that is not configured with DDEV yet
 
-`ddev add-on get` must be run inside a configured DDEV project. On Windows, the optional PowerShell wizard can inspect a project first, suggest the DDEV type/docroot, and ask before making changes:
+`ddev add-on get` must be run inside a configured DDEV project. The wizard can inspect a project first, suggest the DDEV type/docroot, and ask before making changes.
+
+#### Linux (Bash + Python 3)
+
+```bash
+git clone --depth 1 --branch v1.2.0 https://github.com/juancalero/ddev-docktopus.git "${TMPDIR:-/tmp}/ddev-docktopus"
+bash "${TMPDIR:-/tmp}/ddev-docktopus/wizard/convert-docktopus.sh" --path "$PWD"
+```
+
+#### Windows (PowerShell 5.1+)
 
 ```powershell
 $wizardDir = Join-Path $env:TEMP 'ddev-docktopus'
@@ -42,7 +51,7 @@ Use `-AnalyzeOnly` to print the detection result as JSON without changing the pr
 & (Join-Path $wizardDir 'wizard/Convert-Docktopus.ps1') -Path . -AnalyzeOnly
 ```
 
-The wizard detects Composer-managed Drupal projects, legacy Drupal source trees, Node/Vite projects and common `docker-compose.yml` files. It does **not** migrate databases or edit/stop/remove existing Compose services, containers, volumes, or project files. For Compose-managed Drupal (without a root `composer.json`), it recommends a `generic` DDEV project, leaves Drupal's empty-project bootstrap opted out, and lets you omit Docktopus Node/React add-ons to avoid duplicate services/scaffolds. Review detected host ports and resolve conflicts yourself before starting services. It currently targets Windows PowerShell 5.1+; run it from PowerShell, not WSL bash.
+Add `--analyze-only` on Linux or `-AnalyzeOnly` on Windows to print detection results as JSON without making changes. Both versions detect Composer-managed Drupal projects, legacy Drupal source trees, Node/Vite projects and common Compose files. They do **not** migrate databases or edit/stop/remove existing Compose services, containers, volumes, or project files. For Compose-managed Drupal (without a root `composer.json`), they recommend a `generic` DDEV project, leave Drupal's empty-project bootstrap opted out, and let you omit Docktopus Node/React add-ons to avoid duplicate services/scaffolds. Review detected host ports and resolve conflicts yourself before starting services.
 
 ### Existing Drupal project
 

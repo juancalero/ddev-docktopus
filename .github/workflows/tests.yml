@@ -52,6 +52,9 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
+      - uses: actions/checkout@v4
+      - name: Test Linux conversion wizard detection (read-only)
+        run: bash tests/test-wizard.sh
       - uses: ddev/github-action-add-on-test@v2
         with:
           ddev_version: ${{ matrix.ddev_version }}

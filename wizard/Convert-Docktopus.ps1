@@ -286,12 +286,6 @@ if (-not $result.AlreadyDdev) {
     Invoke-Ddev @('config', "--project-name=$projectName", "--project-type=$projectType", "--docroot=$docroot", "--php-version=$phpVersion", "--database=$database")
 }
 
-if (-not (Read-YesNo 'Start this DDEV project now?' $true)) {
-    Write-Host 'DDEV is configured. Start it with ddev start, then rerun this wizard to install add-ons.'
-    exit 0
-}
-Invoke-Ddev @('start', '-y')
-
 Write-Host ''
 Write-Host 'Installation modes:'
 Write-Host '  1. Full meta add-on (all Docktopus services, including Node and React)'
@@ -300,6 +294,15 @@ Write-Host '  3. DDEV configuration only'
 $mode = Read-Host 'Choose 1, 2, or 3 [2]'
 if ([string]::IsNullOrWhiteSpace($mode)) { $mode = '2' }
 if ($mode -notin @('1', '2', '3')) { throw "Invalid installation mode '$mode'." }
+if ($mode -eq '3') {
+    Write-Host 'DDEV configuration is in place. This mode will not start DDEV or install add-ons.'
+    exit 0
+}
+if (-not (Read-YesNo 'Start this DDEV project now?' $true)) {
+    Write-Host 'DDEV is configured. Run ddev start, then rerun this wizard to install add-ons.'
+    exit 0
+}
+Invoke-Ddev @('start', '-y')
 
 if ($mode -eq '1') {
     if ($hasNodeProject) {
